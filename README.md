@@ -217,16 +217,3 @@ Incase if any of the commands fail due to configurations or the network was not 
         insurance:
             - department1
     ```
-
-
-## Contributions
-
-Project Work: CS731 - Blockchain Technology and Application
-Professor: Angshuman Karmakar
-
-#### Team Members:
-1. Raj Kumar - 22111050
-2. Madhav Maheswari - 22111037
-3. Sarthak Neema - 22111079
-4. Sumit Chaudhary - 22111060
-
