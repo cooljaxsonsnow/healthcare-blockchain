@@ -47,10 +47,10 @@ const query = async (channelName, chaincodeName, args, fcn, username, org_name) 
 
         console.log("args: ", args);
         console.log("fcn: ", fcn);
-    
+
         if (fcn == "getAllPatients") {
             result = await contract.evaluateTransaction(fcn, args);
-        
+
         } else if (fcn == "getAllDoctors") {
             result = await contract.evaluateTransaction(fcn, args);
 
@@ -64,20 +64,20 @@ const query = async (channelName, chaincodeName, args, fcn, username, org_name) 
             // });
 
             return result;
-        
+
         } else if (fcn == "getAllPharmacies") {
             result = await contract.evaluateTransaction(fcn, args);
-        
+
         } else if (fcn == "getAllLabs") {
             result = await contract.evaluateTransaction(fcn, args);
-        
+
         } else if (fcn == "getAllInsurance") {
             result = await contract.evaluateTransaction(fcn, args);
-        
+
         } else if (fcn == "getPatient") {
             result = await contract.evaluateTransaction(fcn, args[0]);
             result = JSON.parse(result.toString());
-            
+
             console.log("result:", result);
 
             result.medicalRecords.forEach(medicalRecords => {
@@ -95,7 +95,7 @@ const query = async (channelName, chaincodeName, args, fcn, username, org_name) 
             result.prescriptions.forEach(prescriptions => {
                 prescriptions.labTests = JSON.parse(JSON.parse(prescriptions.labTests));
                 prescriptions.medicines = JSON.parse(JSON.parse(prescriptions.medicines));
-                
+
             });
             return result
 
@@ -111,7 +111,7 @@ const query = async (channelName, chaincodeName, args, fcn, username, org_name) 
         } else if (fcn == "doctorExists") {
             result = await contract.evaluateTransaction(fcn, args[0]);
 
-        } else if (fcn == "getPrescriptionRecord") { 
+        } else if (fcn == "getPrescriptionRecord") {
             result = await contract.evaluateTransaction(fcn, args[0]);
 
         } else if (fcn == "getMedicineData") {
@@ -123,6 +123,9 @@ const query = async (channelName, chaincodeName, args, fcn, username, org_name) 
 
         } else if (fcn == "getClaimRequests") {
             console.log("inside getClaimRequests: ", args);
+            result = await contract.evaluateTransaction(fcn, args[0]);
+        } else if (fcn == 'getRecord') {
+            console.log("inside args[0]: ", args[0]);
             result = await contract.evaluateTransaction(fcn, args[0]);
         }
         else {

@@ -1,52 +1,23 @@
 const { Contract } = require("fabric-contract-api");
-const crypto = require("crypto");
 
 class KVContract extends Contract {
   constructor() {
     super("KVContract");
   }
 
-  /////////////////////////////////////////////////////////////////////////////////////////
-  ///////////////////////////// PATIENT RELATED CHAINCODE /////////////////////////////////
-  /////////////////////////////////////////////////////////////////////////////////////////
-
-  /////////////////////////////
-  // Register Patient
-  /////////////////////////////
-  async registerPatient(
-    ctx,
-    patientId,
-    name,
-    dob,
-    gender,
-    contact,
-    bloodGroup,
-    address
-  ) {
+  async registerPatient(ctx, patientId, name) {
     const newPatient = {
-      patientId,
+      docType: "patient",
       name,
-      dob,
-      gender,
-      contact,
-      bloodGroup,
-      address,
-      orgName: "patient",
-      medicalRecords: [],
-      insuranceRecord: [],
+      recordId: null,
     };
 
     const buffer = Buffer.from(JSON.stringify(newPatient));
     await ctx.stub.putState(patientId, buffer);
 
-    console.log("Patient is registered successfully!!!");
-
     return { success: "OK" };
   }
 
-  /////////////////////////////
-  // Get Patient
-  /////////////////////////////
   async getPatient(ctx, patientId) {
     const buffer = await ctx.stub.getState(patientId);
 
@@ -59,68 +30,24 @@ class KVContract extends Contract {
     return patient;
   }
 
-  /////////////////////////////
-  // Check if patient exists
-  /////////////////////////////
   async patientExists(ctx, patientId) {
     const isPatient = await ctx.stub.getState(patientId);
 
     return isPatient && isPatient.length > 0;
   }
 
-  /////////////////////////////
-  // Get All Patients
-  /////////////////////////////
   async getAllPatients(ctx) {
-    const allResults = [];
-
-    const iterator = await ctx.stub.getStateByRange("", "");
-    let result = await iterator.next();
-    while (!result.done) {
-      const strValue = Buffer.from(result.value.value.toString()).toString(
-        "utf8"
-      );
-      let record;
-      try {
-        record = JSON.parse(strValue);
-      } catch (err) {
-        console.log(err);
-        record = strValue;
-      }
-      allResults.push(record);
-      result = await iterator.next();
-    }
-
-    return JSON.stringify(allResults);
+    let queryString = {};
+    queryString.selector = {};
+    queryString.selector.docType = 'patient';
+    return await this.GetQueryResultForQueryString(ctx, JSON.stringify(queryString));
   }
 
-  /////////////////////////////////////////////////////////////////////////////////////////
-  ///////////////////////////// DOCTOR RELATED CHAINCODE //////////////////////////////////
-  /////////////////////////////////////////////////////////////////////////////////////////
-
-  /////////////////////////////
-  // Register Doctor
-  /////////////////////////////
-  async registerDoctor(
-    ctx,
-    doctorId,
-    name,
-    dob,
-    gender,
-    contact,
-    department,
-    degree
-  ) {
+  async registerDoctor(ctx, doctorId, name) {
     const newDoctor = {
-      doctorId,
+      docType: "doctor",
       name,
-      dob,
-      gender,
-      contact,
-      department,
-      orgName: "doctor",
-      degree,
-      prescriptions: [],
+      accessList: [],
     };
 
     const buffer = Buffer.from(JSON.stringify(newDoctor));
@@ -129,9 +56,6 @@ class KVContract extends Contract {
     return { success: "OK" };
   }
 
-  /////////////////////////////
-  // Get Doctor
-  /////////////////////////////
   async getDoctor(ctx, doctorId) {
     const buffer = await ctx.stub.getState(doctorId);
 
@@ -144,432 +68,116 @@ class KVContract extends Contract {
     return doctor;
   }
 
-  /////////////////////////////
-  // Check if doctor exists
-  /////////////////////////////
   async doctorExists(ctx, doctorId) {
     const isDoctor = await ctx.stub.getState(doctorId);
 
     return isDoctor && isDoctor.length > 0;
   }
 
-  /////////////////////////////
-  // Get All Doctors
-  /////////////////////////////
   async getAllDoctors(ctx) {
-    const allResults = [];
-
-    const iterator = await ctx.stub.getStateByRange("", "");
-    let result = await iterator.next();
-    while (!result.done) {
-      const strValue = Buffer.from(result.value.value.toString()).toString(
-        "utf8"
-      );
-      let record;
-      try {
-        record = JSON.parse(strValue);
-      } catch (err) {
-        console.log(err);
-        record = strValue;
-      }
-      allResults.push(record);
-      result = await iterator.next();
-    }
-
-    return JSON.stringify(allResults);
+    let queryString = {};
+    queryString.selector = {};
+    queryString.selector.docType = 'doctor';
+    return await this.GetQueryResultForQueryString(ctx, JSON.stringify(queryString));
   }
 
-  /////////////////////////////
-  // Prescribe Medicine
-  /////////////////////////////
-
-  async createPrescriptionRecord(
-    ctx,
-    recordId,
-    patientId,
-    doctorId,
-    diagnosis,
-    medicines,
-    labTests,
-    createdAt
-  ) {
-    const newPrescriptionRecord = {
-      recordId,
+  async createRecord(ctx, recordId, patientId, doctorId, metadata) {
+    const newRecord = {
+      docType: "record",
       patientId,
       doctorId,
-      diagnosis,
-      medicines: JSON.stringify(medicines),
-      labTests: JSON.stringify(labTests),
-      createdAt,
+      metadata,
+      createdAt: this._getNow(ctx),
+      updatedAt: this._getNow(ctx),
     };
 
-    console.log("newPrescriptionRecord: ", newPrescriptionRecord);
+    const [oldRecordBuffer, patient] = await Promise.all([ctx.stub.getState(recordId), this.getPatient(ctx, patientId)]);
 
-    const buffer = Buffer.from(JSON.stringify(newPrescriptionRecord));
-    await ctx.stub.putState(recordId, buffer);
-
-    // update patient's medical records
-    const patient = await this.getPatient(ctx, patientId);
-    patient.medicalRecords.push(newPrescriptionRecord);
-    const patientBuffer = Buffer.from(JSON.stringify(patient));
-    await ctx.stub.putState(patientId, patientBuffer);
-
-    // update doctor's prescriptions
-    const doctor = await this.getDoctor(ctx, doctorId);
-    doctor.prescriptions.push(newPrescriptionRecord);
-    const doctorBuffer = Buffer.from(JSON.stringify(doctor));
-    await ctx.stub.putState(doctorId, doctorBuffer);
-
-    return { success: "OK", newPrescriptionRecord };
-  }
-
-  async getPrescriptionRecord(ctx, recordId) {
-    const buffer = await ctx.stub.getState(recordId);
-
-    if (!buffer || buffer.length === 0) {
-      throw new Error(
-        `The prescription record with ID ${recordId} does not exist`
-      );
+    if (oldRecordBuffer && oldRecordBuffer.length > 0) {
+      const oldRecord = JSON.parse(oldRecordBuffer.toString());
+      newRecord.createdAt = oldRecord.createdAt;
     }
 
-    const prescriptionRecord = JSON.parse(buffer.toString());
+    if (!patient.recordId) {
+      patient.recordId = recordId;
+      await ctx.stub.putState(patientId, Buffer.from(JSON.stringify(patient)));
+    }
 
-    return prescriptionRecord;
-  }
-
-  /////////////////////////////////////////////////////////////////////////////////////////
-  ///////////////////////////// PHARMACY RELATED CHAINCODE ////////////////////////////////
-  /////////////////////////////////////////////////////////////////////////////////////////
-
-  /////////////////////////////
-  // Register Pharmacy
-  /////////////////////////////
-  async registerPharmacy(ctx, pharmacyId, name, contact, address, createdAt) {
-    const newPharmacy = {
-      pharmacyId,
-      name,
-      contact,
-      address,
-      createdAt,
-    };
-
-    const buffer = Buffer.from(JSON.stringify(newPharmacy));
-    await ctx.stub.putState(pharmacyId, buffer);
-
+    await ctx.stub.putState(recordId, Buffer.from(JSON.stringify(newRecord)));
     return { success: "OK" };
   }
 
-  /////////////////////////////
-  // Get Pharmacy
-  /////////////////////////////
-  async getPharmacy(ctx, pharmacyId) {
-    const buffer = await ctx.stub.getState(pharmacyId);
-
-    if (!buffer || buffer.length === 0) {
-      throw new Error(`The pharmacy with ID ${pharmacyId} does not exist`);
+  async getRecord(ctx, recordId) {
+    const recordAsBytes = await ctx.stub.getState(recordId);
+    if (!recordAsBytes || recordAsBytes.length === 0) {
+      throw new Error(`The record with ID ${recordId} does not exist`);
     }
-
-    const pharmacy = JSON.parse(buffer.toString());
-
-    return pharmacy;
+    return JSON.parse(recordAsBytes.toString());
   }
 
-  /////////////////////////////
-  // Get all pharmacies
-  /////////////////////////////
-  async getAllPharmacies(ctx) {
-    const allResults = [];
-
-    const iterator = await ctx.stub.getStateByRange("", "");
-    let result = await iterator.next();
-    while (!result.done) {
-      const strValue = Buffer.from(result.value.value.toString()).toString(
-        "utf8"
-      );
-      let record;
-      try {
-        record = JSON.parse(strValue);
-      } catch (err) {
-        console.log(err);
-        record = strValue;
-      }
-      allResults.push(record);
-      result = await iterator.next();
-    }
-
-    return JSON.stringify(allResults);
+  async getAllRecords(ctx) {
+    let queryString = {};
+    queryString.selector = {};
+    queryString.selector.docType = 'record';
+    return await this.GetQueryResultForQueryString(ctx, JSON.stringify(queryString));
   }
 
-  /////////////////////////////
-  // Get Medicine Data
-  /////////////////////////////
-  async getMedicineData(ctx, recordId) {
-    const buffer = await ctx.stub.getState(recordId);
-
-    if (!buffer || buffer.length === 0) {
-      throw new Error(`The medicine with ID ${recordId} does not exist`);
+  async updateRecord(ctx, recordId, patientId, doctorId, metadata) {
+    if (!await this.patientExists(ctx, patientId)) {
+      throw new Error(`The patient with ID ${patientId} does not exist`);
     }
 
-    const record = JSON.parse(buffer.toString());
+    if (!await this.doctorExists(ctx, doctorId)) {
+      throw new Error(`The doctor with ID ${doctorId} does not exist`);
+    }
 
-    let data = {
-      medicineBill: record.medicineBill,
-      medicines: record.medicines,
-    };
+    const recordAsBytes = await ctx.stub.getState(recordId);
+    if (!recordAsBytes || recordAsBytes.length === 0) {
+      throw new Error(`The record with ID ${recordId} does not exist`);
+    }
 
-    return data;
-  }
+    const record = JSON.parse(recordAsBytes.toString());
+    record.metadata = metadata;
+    record.updatedAt = this._getNow(ctx);
 
-  /////////////////////////////
-  // Mark Medicine as Dispensed
-  /////////////////////////////
-  async medicineDispensed(ctx, recordId, medicineBill, medicineData) {
-    let record = await this.getPrescriptionRecord(ctx, recordId);
-
-    record.medicineBill = medicineBill;
-
-    record.medicines = JSON.stringify(medicineData);
-
-    const recordBuffer = Buffer.from(JSON.stringify(record));
-    await ctx.stub.putState(recordId, recordBuffer);
-
+    await ctx.stub.putState(recordId, Buffer.from(JSON.stringify(record)));
     return { success: "OK" };
   }
 
-  /////////////////////////////////////////////////////////////////////////////////////////
-  ///////////////////////////// LAB RELATED CHAINCODE /////////////////////////////////////
-  /////////////////////////////////////////////////////////////////////////////////////////
+  async GetQueryResultForQueryString(ctx, queryString) {
+    let resultsIterator = await ctx.stub.getQueryResult(queryString);
+    let results = await this._GetAllResults(resultsIterator, false);
 
-  /////////////////////////////
-  // Register Lab
-  /////////////////////////////
-  async registerLab(ctx, labId, name, contact, address, createdAt) {
-    const newLab = {
-      labId,
-      name,
-      contact,
-      address,
-      createdAt,
-    };
-
-    const buffer = Buffer.from(JSON.stringify(newLab));
-    await ctx.stub.putState(labId, buffer);
-
-    return { success: "OK" };
+    return JSON.stringify(results);
   }
 
-  /////////////////////////////
-  // Get Lab
-  /////////////////////////////
-  async getLab(ctx, labId) {
-    const buffer = await ctx.stub.getState(labId);
-
-    if (!buffer || buffer.length === 0) {
-      throw new Error(`The lab with ID ${labId} does not exist`);
-    }
-
-    const lab = JSON.parse(buffer.toString());
-
-    return lab;
+  _getNow(ctx) {
+    const timestamp = ctx.stub.getTxTimestamp();
+    const transactionTime = new Date(timestamp.getSeconds() * 1000).toISOString();
+    return transactionTime;
   }
 
-  /////////////////////////////
-  // Get all labs
-  /////////////////////////////
-  async getAllLabs(ctx) {
+  async _GetAllResults(iterator, isHistory) {
     let allResults = [];
-
-    let iterator = await ctx.stub.getStateByRange("", "");
-    let result = await iterator.next();
-    while (!result.done) {
-      let strValue = Buffer.from(result.value.value.toString()).toString(
-        "utf8"
-      );
-      let record;
-      try {
-        record = JSON.parse(strValue);
-      } catch (err) {
-        console.log(err);
-        record = strValue;
+    let res = await iterator.next();
+    while (!res.done) {
+      if (res.value && res.value.value.toString()) {
+        let jsonRes = {};
+        if (isHistory && isHistory === true) {
+          jsonRes.TxId = res.value.txId;
+          jsonRes.Timestamp = res.value.timestamp;
+          jsonRes.Value = JSON.parse(res.value.value.toString('utf8'));
+        } else {
+          jsonRes.Key = res.value.key;
+          jsonRes.Record = JSON.parse(res.value.value.toString('utf8'));
+        }
+        allResults.push(jsonRes);
       }
-      allResults.push(record);
-      result = await iterator.next();
+      res = await iterator.next();
     }
-
-    return JSON.stringify(allResults);
-  }
-
-  /////////////////////////////
-  // Add Lab Test Report
-  /////////////////////////////
-  async addLabTestReport(ctx, recordId, labTestReport, labBill) {
-    let record = await this.getPrescriptionRecord(ctx, recordId);
-
-    record.labTests = JSON.stringify(labTestReport);
-    record.labBill = labBill;
-
-    const recordBuffer = Buffer.from(JSON.stringify(record));
-    await ctx.stub.putState(recordId, recordBuffer);
-
-    return { success: "OK" };
-  }
-
-  /////////////////////////////
-  // Get Lab Test Report
-  /////////////////////////////
-  async getLabTestReport(ctx, recordId) {
-    const buffer = await ctx.stub.getState(recordId);
-
-    if (!buffer || buffer.length === 0) {
-      throw new Error(`The medical record with ID ${recordId} does not exist`);
-    }
-
-    const medicalRecord = JSON.parse(buffer.toString());
-    const labRecord = medicalRecord.labTests;
-
-    return labRecord;
-  }
-
-  /////////////////////////////////////////////////////////////////////////////////////////
-  ///////////////////////////// INSURANCE RELATED CHAINCODE ///////////////////////////////
-  /////////////////////////////////////////////////////////////////////////////////////////
-
-  /////////////////////////////
-  // Register Insurance
-  /////////////////////////////
-  async registerInsurance(ctx, insuranceId, name, contact, address, createdAt) {
-    const newInsurance = {
-      insuranceId,
-      name,
-      contact,
-      address,
-      createdAt
-    };
-
-    const buffer = Buffer.from(JSON.stringify(newInsurance));
-    await ctx.stub.putState(insuranceId, buffer);
-
-    return { success: "OK" };
-  }
-
-  /////////////////////////////
-  // Get Insurance
-  /////////////////////////////
-  async getInsurance(ctx, insuranceId) {
-    const buffer = await ctx.stub.getState(insuranceId);
-
-    if (!buffer || buffer.length === 0) {
-      throw new Error(`The insurance with ID ${insuranceId} does not exist`);
-    }
-
-    const insurance = JSON.parse(buffer.toString());
-
-    return insurance;
-  }
-
-  /////////////////////////////
-  // Get all Insurances
-  /////////////////////////////
-  async getAllInsurances(ctx) {
-    let allResults = [];
-
-    let iterator = await ctx.stub.getStateByRange("", "");
-    let result = await iterator.next();
-    while (!result.done) {
-      let strValue = Buffer.from(result.value.value.toString()).toString(
-        "utf8"
-      );
-      let record;
-      try {
-        record = JSON.parse(strValue);
-      } catch (err) {
-        console.log(err);
-        record = strValue;
-      }
-      allResults.push(record);
-      result = await iterator.next();
-    }
-
-    return JSON.stringify(allResults);
-  }
-
-  /////////////////////////////
-  // Get Claim Requests
-  /////////////////////////////
-  async getClaimRequests(ctx, recordId) {
-    let buffer = await ctx.stub.getState(recordId);
-
-    if (!buffer || buffer.length === 0) {
-      throw new Error(`The medical record with ID ${recordId} does not exist`);
-    }
-
-    let record = JSON.parse(buffer.toString());
-
-    let insuranceRecord;
-    if (!record.insuranceRecord) {
-      return false;
-    } else {
-      let claimRequests = record.insuranceRecord.insuranceClaim;
-
-      if (claimRequests) {
-        insuranceRecord = record.insuranceRecord;
-      } else {
-        return false;
-      }
-    }
-
-    return insuranceRecord;
-  }
-
-  /////////////////////////////
-  // Add Claim Request
-  /////////////////////////////
-  async addClaimRequest(ctx, recordId, requestDate) {
-    let buffer = await ctx.stub.getState(recordId);
-
-    if (!buffer || buffer.length === 0) {
-      throw new Error(`The medical record with ID ${recordId} does not exist`);
-    }
-
-    let record = JSON.parse(buffer.toString());
-
-    let insuranceRecord = {
-      insuranceClaim: true,
-      status: "in process",
-      claimRequestDate: requestDate,
-    };
-
-    record.insuranceRecord = insuranceRecord;
-
-    const recordBuffer = Buffer.from(JSON.stringify(record));
-    await ctx.stub.putState(recordId, recordBuffer);
-
-    return { success: "OK" };
-  }
-
-  /////////////////////////////
-  // claim Response by Insurance Company
-  /////////////////////////////
-  async addClaimResponse(ctx, recordId, status, responseDate) {
-    let buffer = await ctx.stub.getState(recordId);
-
-    if (!buffer || buffer.length === 0) {
-      throw new Error(`The medical record with ID ${recordId} does not exist`);
-    }
-
-    let record = JSON.parse(buffer.toString());
-
-    let insuranceRecord = record.insuranceRecord;
-    insuranceRecord.status = status;
-    insuranceRecord.claimResponseDate = responseDate;
-
-    record.insuranceRecord = insuranceRecord;
-
-    const recordBuffer = Buffer.from(JSON.stringify(record));
-    await ctx.stub.putState(recordId, recordBuffer);
-
-    return { success: "OK" };
+    iterator.close();
+    return allResults;
   }
 }
 
-exports.contracts = [KVContract];
+module.exports = KVContract;

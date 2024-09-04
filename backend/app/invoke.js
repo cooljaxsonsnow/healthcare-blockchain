@@ -83,25 +83,13 @@ const invokeTransaction = async (
     if (fcn === "registerPatient") {
       result = await contract.submitTransaction(
         fcn,
-        args[0],
-        args[1],
-        args[2],
-        args[3],
-        args[4],
-        args[5],
-        args[6],
+        ...args
       );
       message = `Successfully added the patient to the ledger with id ${args[0]}`;
     } else if (fcn === "registerDoctor") {
       result = await contract.submitTransaction(
         fcn,
-        args[0],
-        args[1],
-        args[2],
-        args[3],
-        args[4],
-        args[5],
-        args[6],
+        ...args
       );
       message = `Successfully added the doctor to the ledger with id ${args[0]}`;
     } else if (fcn === "registerPharmacy") {
@@ -193,7 +181,24 @@ const invokeTransaction = async (
       console.log("inside claimResponse, args: ", args);
       result = await contract.submitTransaction(fcn, args[0], args[1], args[2]);
       message = `Successfully added the claim response to the ledger with id ${args[0]}`;
-    } else {
+    } else if (fcn === "createRecord") {
+      console.log("inside createRecord, args: ", args);
+      result = await contract.submitTransaction(fcn, ...args);
+      message = `Successfully added the claim response to the ledger with id ${args[0]}`;
+    } else if (fcn === 'getAllPatients') {
+      console.log("inside getAllPatients, args: ", args);
+      result = await contract.submitTransaction(fcn, ...args.split(','));
+      message = `Successfully getAllPatients ${args[0]}`;
+    } else if (fcn === 'getAllDoctors') {
+      console.log("inside getAllPatients, args: ", args);
+      result = await contract.submitTransaction(fcn, ...args.split(','));
+      message = `Successfully getAllPatients ${args[0]}`;
+    } else if (fcn === 'getAllRecords') {
+      console.log("inside getAllPatients, args: ", args);
+      result = await contract.submitTransaction(fcn);
+      message = `Successfully getAllPatients ${args[0]}`;
+    }
+    else {
       return `Invocation require either createCar or changeCarOwner as function but got ${fcn}`;
     }
 

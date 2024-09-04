@@ -408,6 +408,8 @@ exports.getRegisteredUser = getRegisteredUser;
 
 module.exports = {
   getCCP: getCCP,
+  getCaUrl: getCaUrl,
+  enrollAdmin: enrollAdmin,
   getWalletPath: getWalletPath,
   getRegisteredUser: getRegisteredUser,
   isUserRegistered: isUserRegistered,

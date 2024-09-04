@@ -7,6 +7,8 @@ const invoke = require('../../app/invoke')
 const qscc = require('../../app/qscc')
 const query = require('../../app/query')
 const jwt = require('jsonwebtoken');
+const FabricCAServices = require('fabric-ca-client');
+const { Wallets } = require('fabric-network');
 logger.level = 'debug';
 function getErrorMessage(field) {
     var response = {
@@ -17,13 +19,19 @@ function getErrorMessage(field) {
 }
 
 exports.register = async (req, res, next) => {
+    console.log('///////////', req.body);
 
-    const args = req.body.args;
     const username = req.body.username;
     const orgName = req.body.orgName;
     const password = req.body.password;
     const transient = {};
-    const fcn = req.body.fcn;
+    let fcn;
+
+    if (orgName === 'doctor') {
+        fcn = 'registerDoctor';
+    } else {
+        fcn = 'registerPatient';
+    }
 
     // check admin status
 
@@ -67,11 +75,8 @@ exports.register = async (req, res, next) => {
     // wallet
     let response = await helper.getRegisteredUser(username, orgName, true);
 
-    args.unshift(userId);
-    logger.debug('args: ', args);
-
     // ledger
-    let message = await invoke.invokeTransaction("main-channel1", "chaincode1", fcn, args, username, orgName, transient);
+    let message = await invoke.invokeTransaction("main-channel1", "chaincode1", fcn, [userId, username], username, orgName, transient);
 
     console.log("ledger message: ", message);
 
@@ -307,4 +312,73 @@ exports.getUserDetails = async (req, res, next) => {
     )
 
 
+}
+
+exports.registerPatient = async (req, res, next) => {
+    const {
+        firstName,
+    } = req.body;
+}
+
+exports.registerDoctor = async (req, res, next) => {
+
+}
+
+exports.getUserList = async (req, res, next) => {
+    const userData = await User.findOne({ userId: req.session.uid });
+    // console.log(userData);
+    username = userData.userName;
+    access = userData.access
+}
+
+exports.getDoctorList = async (req, res) => {
+    let ccp = await helper.getCCP('doctor');
+
+    const caURL = await helper.getCaUrl('doctor', ccp);
+    const ca = new FabricCAServices(caURL);
+
+    const walletPath = await helper.getWalletPath('doctor');
+    const wallet = await Wallets.newFileSystemWallet(walletPath);
+    console.log(`Wallet path: ${walletPath}`);
+
+    let adminIdentity = await wallet.get("admin");
+    if (!adminIdentity) {
+        console.log(
+            'An identity for the admin user "admin" does not exist in the wallet'
+        );
+        await helper.enrollAdmin('doctor', ccp);
+        adminIdentity = await wallet.get("admin");
+        console.log("Admin Enrolled Successfully");
+    }
+
+    let respose = await query.query("main-channel1", "chaincode1", [], "getAllDoctors", 'admin', 'doctor');
+
+    res.status(200).json({ success: true, data: respose });
+    console.log(respose);
+}
+
+exports.getPatientList = async (req, res) => {
+    let ccp = await helper.getCCP('patient');
+
+    const caURL = await helper.getCaUrl('patient', ccp);
+    const ca = new FabricCAServices(caURL);
+
+    const walletPath = await helper.getWalletPath('patient');
+    const wallet = await Wallets.newFileSystemWallet(walletPath);
+    console.log(`Wallet path: ${walletPath}`);
+
+    let adminIdentity = await wallet.get("admin");
+    if (!adminIdentity) {
+        console.log(
+            'An identity for the admin user "admin" does not exist in the wallet'
+        );
+        await helper.enrollAdmin('patient', ccp);
+        adminIdentity = await wallet.get("admin");
+        console.log("Admin Enrolled Successfully");
+    }
+
+    let respose = await query.query("main-channel1", "chaincode1", [], "getAllPatients", 'admin', 'patient');
+
+    res.status(200).json({ success: true, data: respose });
+    console.log(respose);
 }
