@@ -1,9 +1,9 @@
 const express = require('express');
 const { isAuthenticatedUser } = require('../../middleware/auth')
-const { createRecord } = require('../../Controller/Record/Record');
+const { getRecord } = require('../../Controller/Entity/Entity');
 
 const router = express.Router();
 
-router.route('/create-record').post(isAuthenticatedUser, createRecord);
+router.route('/get-record/:recordId').get(isAuthenticatedUser, getRecord);
 
 module.exports = router;

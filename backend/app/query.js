@@ -58,13 +58,12 @@ const query = async (channelName, chaincodeName, args, fcn, username, org_name) 
 
             console.log("result: ", result);
 
-            // result.forEach(result => {
-            //     result.labTests = JSON.parse(JSON.parse(result.labTests));
-            //     result.medicines = JSON.parse(JSON.parse(result.medicines));
-            // });
-
             return result;
 
+        } else if (fcn == "getAllFacilities") {
+            result = await contract.evaluateTransaction(fcn, args);
+        } else if (fcn == "getAllEntities") {
+            result = await contract.evaluateTransaction(fcn, args);
         } else if (fcn == "getAllPharmacies") {
             result = await contract.evaluateTransaction(fcn, args);
 

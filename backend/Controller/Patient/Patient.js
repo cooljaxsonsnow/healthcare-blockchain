@@ -1,5 +1,3 @@
-const User = require('../../Model/Users');
-const Record = require('../../Model/PaitientRecords');
 const constants = require('../../config/constants.json')
 const log4js = require('log4js');
 const logger = log4js.getLogger('BasicNetwork');
@@ -256,7 +254,7 @@ exports.LabRecords = async (req, res, next) => {
 
             let message = await query.query("main-channel1", "chaincode1", [result[item].RecordId], "getLabTestReport", username, "patient");
             message = JSON.parse(message);
-            console.log("message: ",message)
+            console.log("message: ", message)
             recordsData.push(message);
         }));
     });
@@ -282,7 +280,7 @@ exports.PharmacyRecords = async (req, res, next) => {
     const records = await Record.find({ patientId }).then(async (result) => {
 
         await Promise.all(Object.keys(result).map(async (item) => {
-            console.log("result: ", result[item]);    
+            console.log("result: ", result[item]);
             let message = await query.query("main-channel1", "chaincode1", [result[item].RecordId], "getMedicineData", username, "patient");
             console.log("message record data: ", message);
             message.medicines = JSON.parse(JSON.parse(message.medicines));

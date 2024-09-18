@@ -14,10 +14,9 @@ const constants = require('./config/constants.json')
 const mongoose = require('mongoose');
 const host = process.env.HOST || constants.host;
 const port = process.env.PORT || constants.port;
-const User = require('./Model/Users');
 const session = require('express-session');
 const MongoDBSession = require("connect-mongodb-session")(session);
-const {isAuthenticatedUser,authorizeRoles} = require('./middleware/auth')
+const { isAuthenticatedUser, authorizeRoles } = require('./middleware/auth')
 
 const helper = require('./app/helper')
 const invoke = require('./app/invoke')
@@ -28,16 +27,16 @@ require('dotenv').config();
 
 
 
-    mongoose.connect(process.env.MONGO_URI,{
-        useNewUrlParser:true,
-        useUnifiedTopology:true 
-    });
-    const connection = mongoose.connection.on('connected',()=>{
-        console.log('connected to mongoose');
-    })
-    mongoose.connection.on('error',(err)=>{
-        console.log("error while connecting",err)
-    })
+mongoose.connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+});
+const connection = mongoose.connection.on('connected', () => {
+    console.log('connected to mongoose');
+})
+mongoose.connection.on('error', (err) => {
+    console.log("error while connecting", err)
+})
 
 
 
@@ -57,23 +56,23 @@ app.use(bearerToken());
 logger.level = 'debug';
 
 const store = new MongoDBSession({
-    uri:process.env.MONGO_URI,
-    collection:'mySessions'
-  })
+    uri: process.env.MONGO_URI,
+    collection: 'mySessions'
+})
 
 app.use(session({
     secret: process.env.SESSION_SECRET_KEY,
     resave: false,
     saveUninitialized: false,
-    store:store,
+    store: store,
     cookie: {
-    //    sameSite: 'None',
-    //    httpOnly:true,
-    //    secure:true,
-       
+        //    sameSite: 'None',
+        //    httpOnly:true,
+        //    secure:true,
+
     },
-    proxy:true
-  }))
+    proxy: true
+}))
 
 
 
@@ -93,15 +92,11 @@ function getErrorMessage(field) {
 const admin = require('./routes/Admin/Admin');
 const patient = require('./routes/Paitient/Patient')
 const doctor = require('./routes/Doctor/Doctor')
-const chemist = require('./routes/Chemist/Chemist')
-const lab = require('./routes/Lab/Lab');
-const insurance = require('./routes/Insurance/Insurance');
 const chaincode = require('./routes/chaincode/chaincode');
+const Record = require('./routes/Record/Record');
 
-app.use('/api',admin);
-app.use('/api',patient);
-app.use('/api',doctor);
-app.use('/api',chemist);
-app.use('/api',lab);
-app.use('/api',insurance);
-app.use('/api',chaincode);
+app.use('/api', admin);
+app.use('/api', patient);
+app.use('/api', doctor);
+app.use('/api', chaincode);
+app.use('/api', Record)

@@ -23,26 +23,19 @@ const getCCP = async (org) => {
       "config",
       "connection-profile-doctor.json"
     );
-  } else if (org == "pharmacy") {
+  } else if (org == "facility") {
     ccpPath = path.resolve(
       __dirname,
       "..",
       "config",
-      "connection-profile-pharmacy.json"
+      "connection-profile-facility.json"
     );
-  } else if (org == "lab") {
+  } else if (org == "entity") {
     ccpPath = path.resolve(
       __dirname,
       "..",
       "config",
-      "connection-profile-lab.json"
-    );
-  } else if (org == "insurance") {
-    ccpPath = path.resolve(
-      __dirname,
-      "..",
-      "config",
-      "connection-profile-insurance.json"
+      "connection-profile-entity.json"
     );
   } else return null;
   console.log("CCP Path: ", ccpPath);
@@ -57,12 +50,10 @@ const getCaUrl = async (org, ccp) => {
     caURL = ccp.certificateAuthorities["ca.patient.healthcare.com"].url;
   } else if (org == "doctor") {
     caURL = ccp.certificateAuthorities["ca.doctor.healthcare.com"].url;
-  } else if (org == "pharmacy") {
-    caURL = ccp.certificateAuthorities["ca.pharmacy.healthcare.com"].url;
-  } else if (org == "lab") {
-    caURL = ccp.certificateAuthorities["ca.lab.healthcare.com"].url;
-  } else if (org == "insurance") {
-    caURL = ccp.certificateAuthorities["ca.insurance.healthcare.com"].url;
+  } else if (org == "facility") {
+    caURL = ccp.certificateAuthorities["ca.facility.healthcare.com"].url;
+  } else if (org == "entity") {
+    caURL = ccp.certificateAuthorities["ca.entity.healthcare.com"].url;
   } else return null;
   return caURL;
 };
@@ -73,12 +64,10 @@ const getWalletPath = async (org) => {
     walletPath = path.join(process.cwd(), "patient-wallet");
   } else if (org == "doctor") {
     walletPath = path.join(process.cwd(), "doctor-wallet");
-  } else if (org == "pharmacy") {
-    walletPath = path.join(process.cwd(), "pharmacy-wallet");
-  } else if (org == "lab") {
-    walletPath = path.join(process.cwd(), "lab-wallet");
-  } else if (org == "insurance") {
-    walletPath = path.join(process.cwd(), "insurance-wallet");
+  } else if (org == "facility") {
+    walletPath = path.join(process.cwd(), "facility-wallet");
+  } else if (org == "entity") {
+    walletPath = path.join(process.cwd(), "entity-wallet");
   } else return null;
   console.log("Wallet Path: ", walletPath);
   return walletPath;
@@ -87,9 +76,8 @@ const getWalletPath = async (org) => {
 const getAffiliation = async (org) => {
   if (org == "patient") return "patient.department1";
   else if (org == "doctor") return "doctor.department1";
-  else if (org == "pharmacy") return "pharmacy.department1";
-  else if (org == "lab") return "lab.department1";
-  else if (org == "insurance") return "insurance.department1";
+  else if (org == "facility") return "facility.department1";
+  else if (org == "entity") return "entity.department1";
   else return null;
 };
 
@@ -126,6 +114,10 @@ const getRegisteredUser = async (username, userOrg, isJson) => {
     await enrollAdmin(userOrg, ccp);
     adminIdentity = await wallet.get("admin");
     console.log("Admin Enrolled Successfully");
+  }
+
+  if (typeof adminIdentity == 'string') {
+    return 'Failed to enroll admin user "admin": Error: Calling enroll endpoint failed with error'
   }
 
   // build a user object for authenticating with the CA
@@ -172,31 +164,22 @@ const getRegisteredUser = async (username, userOrg, isJson) => {
       mspId: "doctorMSP",
       type: "X.509",
     };
-  } else if (userOrg == "pharmacy") {
+  } else if (userOrg == "facility") {
     x509Identity = {
       credentials: {
         certificate: enrollment.certificate,
         privateKey: enrollment.key.toBytes(),
       },
-      mspId: "pharmacyMSP",
+      mspId: "facilityMSP",
       type: "X.509",
     };
-  } else if (userOrg == "lab") {
+  } else if (userOrg == "entity") {
     x509Identity = {
       credentials: {
         certificate: enrollment.certificate,
         privateKey: enrollment.key.toBytes(),
       },
-      mspId: "labMSP",
-      type: "X.509",
-    };
-  } else if (userOrg == "insurance") {
-    x509Identity = {
-      credentials: {
-        certificate: enrollment.certificate,
-        privateKey: enrollment.key.toBytes(),
-      },
-      mspId: "insuranceMSP",
+      mspId: "entityMSP",
       type: "X.509",
     };
   }
@@ -232,12 +215,10 @@ const getCaInfo = async (org, ccp) => {
     caInfo = ccp.certificateAuthorities["ca.patient.healthcare.com"];
   } else if (org == "doctor") {
     caInfo = ccp.certificateAuthorities["ca.doctor.healthcare.com"];
-  } else if (org == "pharmacy") {
-    caInfo = ccp.certificateAuthorities["ca.pharmacy.healthcare.com"];
-  } else if (org == "lab") {
-    caInfo = ccp.certificateAuthorities["ca.lab.healthcare.com"];
-  } else if (org == "insurance") {
-    caInfo = ccp.certificateAuthorities["ca.insurance.healthcare.com"];
+  } else if (org == "facility") {
+    caInfo = ccp.certificateAuthorities["ca.facility.healthcare.com"];
+  } else if (org == "entity") {
+    caInfo = ccp.certificateAuthorities["ca.entity.healthcare.com"];
   } else return null;
   return caInfo;
 };
@@ -302,31 +283,22 @@ const enrollAdmin = async (org, ccp) => {
         mspId: "doctorMSP",
         type: "X.509",
       };
-    } else if (org == "pharmacy") {
+    } else if (org == "facility") {
       x509Identity = {
         credentials: {
           certificate: enrollment.certificate,
           privateKey: enrollment.key.toBytes(),
         },
-        mspId: "pharmacyMSP",
+        mspId: "facilityMSP",
         type: "X.509",
       };
-    } else if (org == "lab") {
+    } else if (org == "entity") {
       x509Identity = {
         credentials: {
           certificate: enrollment.certificate,
           privateKey: enrollment.key.toBytes(),
         },
-        mspId: "labMSP",
-        type: "X.509",
-      };
-    } else if (org == "insurance") {
-      x509Identity = {
-        credentials: {
-          certificate: enrollment.certificate,
-          privateKey: enrollment.key.toBytes(),
-        },
-        mspId: "insuranceMSP",
+        mspId: "entityMSP",
         type: "X.509",
       };
     }

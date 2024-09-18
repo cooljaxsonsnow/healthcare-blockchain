@@ -92,6 +92,24 @@ const invokeTransaction = async (
         ...args
       );
       message = `Successfully added the doctor to the ledger with id ${args[0]}`;
+    } else if (fcn === "registerFacility") {
+      result = await contract.submitTransaction(
+        fcn,
+        ...args
+      );
+      message = `Successfully added the facility to the ledger with id ${args[0]}`;
+    } else if (fcn === "registerEntity") {
+      result = await contract.submitTransaction(
+        fcn,
+        ...args
+      );
+      message = `Successfully added the facility to the ledger with id ${args[0]}`;
+    } else if (fcn === "grantAccess") {
+      result = await contract.submitTransaction(
+        fcn,
+        ...args
+      );
+      message = `Successfully added the facility to the ledger with id ${args[0]}`;
     } else if (fcn === "registerPharmacy") {
       console.log("fcn: ", fcn, "args: ", args, "org: ", org_name, username);
       let createdAt = new Date();

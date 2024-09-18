@@ -1,4 +1,3 @@
-const User = require('../../Model/Users');
 const constants = require('../../config/constants.json')
 const log4js = require('log4js');
 const logger = log4js.getLogger('BasicNetwork');
@@ -16,8 +15,8 @@ function getErrorMessage(field) {
     return response;
 }
 
-exports.invoke = async (req,res,next)=>{
-        try {
+exports.invoke = async (req, res, next) => {
+    try {
         logger.debug('==================== INVOKE ON CHAINCODE ==================');
         // var peers = req.body.peers;
         var chaincodeName = req.params.chaincodeName;
@@ -70,11 +69,11 @@ exports.invoke = async (req,res,next)=>{
         res.send(response_payload)
     }
 
- 
+
 }
 
-exports.query = async (req,res,next)=>{
-        try {
+exports.query = async (req, res, next) => {
+    try {
         logger.debug('==================== QUERY BY CHAINCODE ==================');
 
         var channelName = req.params.channelName;
@@ -84,21 +83,21 @@ exports.query = async (req,res,next)=>{
         let username;
         let OrgName;
         let fcn
-        const user = await User.findOne({userId:req.session.uid}).then((result)=>{
-          username = result.userName
-          OrgName = result.orgName
+        const user = await User.findOne({ userId: req.session.uid }).then((result) => {
+            username = result.userName
+            OrgName = result.orgName
         })
 
-        if(OrgName === "patient"){
+        if (OrgName === "patient") {
             fcn = "getPatient";
-        } else if(OrgName === "doctor"){
+        } else if (OrgName === "doctor") {
             fcn = "getDoctor";
         }
-     
+
         // let peer = req.query.peer;
 
-        logger.debug('Username: '+ username);
-        logger.debug('Orgname: '+ OrgName);
+        logger.debug('Username: ' + username);
+        logger.debug('Orgname: ' + OrgName);
         logger.debug('channelName : ' + channelName);
         logger.debug('chaincodeName : ' + chaincodeName);
         logger.debug('fcn : ' + fcn);
@@ -121,8 +120,8 @@ exports.query = async (req,res,next)=>{
             return;
         }
 
-        
-        
+
+
 
         console.log('args==========', args);
         args = args.replace(/'/g, '"');
@@ -135,7 +134,7 @@ exports.query = async (req,res,next)=>{
         // const user = await User.findOne({ userId:req.session.userId }).select("+password");
 
         // console.log("user: " + user);
-        
+
         // if(!user?.access?.includes(args[0])){
         //     return res.status(400).json({ success: false, message: `User does not have access of this patient.` });
 
@@ -143,7 +142,7 @@ exports.query = async (req,res,next)=>{
 
         console.log("before ledger query");
 
-        let message = await query.query(channelName, chaincodeName, [args], fcn,username,OrgName);
+        let message = await query.query(channelName, chaincodeName, [args], fcn, username, OrgName);
 
         logger.debug('message : ' + message);
 

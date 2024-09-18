@@ -55,8 +55,8 @@
     },
     {
       "organization": {
-        "name": "pharmacy",
-        "domain": "pharmacy.healthcare.com"
+        "name": "facility",
+        "domain": "facility.healthcare.com"
       },
       "peer": {
         "instances": 1,
@@ -69,22 +69,8 @@
     },
     {
       "organization": {
-        "name": "lab",
-        "domain": "lab.healthcare.com"
-      },
-      "peer": {
-        "instances": 1,
-        "db": "CouchDb"
-      },
-      "tools": {
-        "fabloRest": false,
-        "explorer": false
-      }
-    },
-    {
-      "organization": {
-        "name": "insurance",
-        "domain": "insurance.healthcare.com"
+        "name": "entity",
+        "domain": "entity.healthcare.com"
       },
       "peer": {
         "instances": 1,
@@ -113,19 +99,13 @@
           ]
         },
         {
-          "name": "pharmacy",
+          "name": "facility",
           "peers": [
             "peer0"
           ]
         },
         {
-          "name": "lab",
-          "peers": [
-            "peer0"
-          ]
-        },
-        {
-          "name": "insurance",
+          "name": "entity",
           "peers": [
             "peer0"
           ]
@@ -136,7 +116,7 @@
   "chaincodes": [
     {
       "name": "chaincode1",
-      "version": "0.0.3",
+      "version": "0.0.1",
       "lang": "node",
       "channel": "main-channel1",
       "directory": "./chaincodes/chaincode-kv-node"

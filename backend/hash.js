@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 
-(async() => {
+(async () => {
   const hash = await bcrypt.hash("QWE@#$asd234", 10);
-  console.log(hash);
+  const boolVal = await bcrypt.compare("QWE@#$asd234", hash);
+  console.log(hash, boolVal);
 })();
