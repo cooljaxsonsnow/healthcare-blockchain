@@ -1,0 +1,60 @@
+{
+  "name": "fablo-test-network-doctor",
+  "description": "Connection profile for lab in Fablo network",
+  "version": "1.0.0",
+  "client": {
+      "organization": "doctor"
+  },
+  "organizations": {
+      "doctor": {
+          "mspid": "doctorMSP",
+          "peers": [
+              "peer0.patient.healthcare.com",
+              "peer0.doctor.healthcare.com",
+              "peer0.facility.healthcare.com",
+              "peer0.entity.healthcare.com"
+          ],
+          "certificateAuthorities": [
+              "ca.doctor.healthcare.com"
+          ]
+      }
+  },
+  "peers": {
+      "peer0.patient.healthcare.com": {
+        "url": "grpc://34.42.71.30:7041",
+        "tlsCACerts": {
+          "pem": "-----BEGIN CERTIFICATE-----\nMIICcDCCAhegAwIBAgIQWy6fexJpBBxCP7xpGiq8sjAKBggqhkjOPQQDAjCBgjEL\nMAkGA1UEBhMCVVMxEzARBgNVBAgTCkNhbGlmb3JuaWExFjAUBgNVBAcTDVNhbiBG\ncmFuY2lzY28xHzAdBgNVBAoTFnBhdGllbnQuaGVhbHRoY2FyZS5jb20xJTAjBgNV\nBAMTHHRsc2NhLnBhdGllbnQuaGVhbHRoY2FyZS5jb20wHhcNMjQxMDAyMTUxMDAw\nWhcNMzQwOTMwMTUxMDAwWjCBgjELMAkGA1UEBhMCVVMxEzARBgNVBAgTCkNhbGlm\nb3JuaWExFjAUBgNVBAcTDVNhbiBGcmFuY2lzY28xHzAdBgNVBAoTFnBhdGllbnQu\naGVhbHRoY2FyZS5jb20xJTAjBgNVBAMTHHRsc2NhLnBhdGllbnQuaGVhbHRoY2Fy\nZS5jb20wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAASoMH/M4TdM/uJmKiJGVKgS\nSqezOXnE+RHMMxAxE4hfw7RBE//JCYBGWwVKyMgmueYwtBclOXeod6BXedRd12SU\no20wazAOBgNVHQ8BAf8EBAMCAaYwHQYDVR0lBBYwFAYIKwYBBQUHAwIGCCsGAQUF\nBwMBMA8GA1UdEwEB/wQFMAMBAf8wKQYDVR0OBCIEIDKutaM6BeligacTL8ao3RAh\ngNTqxg1zsbhjIp4sqc2AMAoGCCqGSM49BAMCA0cAMEQCIAZ0aH3ejVcHlBwxLGpj\n+pDh3K6bdMX/FGI5b9Lelx/XAiB9JE7OxadLWWuu1NaHPsxrsJlXyHXUXUI9BZYx\nbLMbLw==\n-----END CERTIFICATE-----\n"
+        }
+      },
+      "peer0.doctor.healthcare.com": {
+        "url": "grpc://34.42.71.30:7061",
+        "tlsCACerts": {
+          "pem": "-----BEGIN CERTIFICATE-----\nMIICbjCCAhSgAwIBAgIRAI2Y/MpYfIwb0iA6HMuN9PwwCgYIKoZIzj0EAwIwgYAx\nCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpDYWxpZm9ybmlhMRYwFAYDVQQHEw1TYW4g\nRnJhbmNpc2NvMR4wHAYDVQQKExVkb2N0b3IuaGVhbHRoY2FyZS5jb20xJDAiBgNV\nBAMTG3Rsc2NhLmRvY3Rvci5oZWFsdGhjYXJlLmNvbTAeFw0yNDEwMDIxNTEwMDBa\nFw0zNDA5MzAxNTEwMDBaMIGAMQswCQYDVQQGEwJVUzETMBEGA1UECBMKQ2FsaWZv\ncm5pYTEWMBQGA1UEBxMNU2FuIEZyYW5jaXNjbzEeMBwGA1UEChMVZG9jdG9yLmhl\nYWx0aGNhcmUuY29tMSQwIgYDVQQDExt0bHNjYS5kb2N0b3IuaGVhbHRoY2FyZS5j\nb20wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAQr0JqWZqDMk1bsK9tKTGGjwaDR\nkddF5LO03B1z8LGNd1MFjbb9MlSloFDCuVkGQaEcFf3UakLwWvj3DnMX16+fo20w\nazAOBgNVHQ8BAf8EBAMCAaYwHQYDVR0lBBYwFAYIKwYBBQUHAwIGCCsGAQUFBwMB\nMA8GA1UdEwEB/wQFMAMBAf8wKQYDVR0OBCIEIM+ydNj1W8rye2KZ5FiNPyYN1Sm7\nZ93NcBLW++HVjDkNMAoGCCqGSM49BAMCA0gAMEUCIGsd7gQzYix/JQCoLKYrYB1N\nDAZrhzAOwIsjoIc7ITyZAiEA+vCWVo9vPcPO5xXfcihkjVo5n39U3KsdfiVRiUAl\naW8=\n-----END CERTIFICATE-----\n"
+        }
+      },
+      "peer0.facility.healthcare.com": {
+        "url": "grpc://34.41.128.122:7081",
+        "tlsCACerts": {
+          "pem": "-----BEGIN CERTIFICATE-----\nMIICdzCCAhygAwIBAgIRAK38SOepoEPQn6KzylfMu0kwCgYIKoZIzj0EAwIwgYQx\nCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpDYWxpZm9ybmlhMRYwFAYDVQQHEw1TYW4g\nRnJhbmNpc2NvMSAwHgYDVQQKExdmYWNpbGl0eS5oZWFsdGhjYXJlLmNvbTEmMCQG\nA1UEAxMddGxzY2EuZmFjaWxpdHkuaGVhbHRoY2FyZS5jb20wHhcNMjQxMDAyMTUx\nMDAwWhcNMzQwOTMwMTUxMDAwWjCBhDELMAkGA1UEBhMCVVMxEzARBgNVBAgTCkNh\nbGlmb3JuaWExFjAUBgNVBAcTDVNhbiBGcmFuY2lzY28xIDAeBgNVBAoTF2ZhY2ls\naXR5LmhlYWx0aGNhcmUuY29tMSYwJAYDVQQDEx10bHNjYS5mYWNpbGl0eS5oZWFs\ndGhjYXJlLmNvbTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABP6Ripm+M7ezbh4w\nOrTI9kAL1/298GaIVfZoqfaGopE1/m57WBnfSeDMBQeiYaB6iVNyIZxD8BIDHuBW\n+DAC4f+jbTBrMA4GA1UdDwEB/wQEAwIBpjAdBgNVHSUEFjAUBggrBgEFBQcDAgYI\nKwYBBQUHAwEwDwYDVR0TAQH/BAUwAwEB/zApBgNVHQ4EIgQgprz90TzpC0F0ZOh5\n1/asHoGpM3PhUfwMkfv5C+R1l/UwCgYIKoZIzj0EAwIDSQAwRgIhAM5LnAEYFwBs\neVE6DTu8nixvbPkZK06yrxgVXhN/4LTrAiEAlu+iGy9HBr4lwJ2E8T1iRmRjUe0w\n0/Dw+pzXVRWUn6s=\n-----END CERTIFICATE-----\n"
+        }
+      },
+      "peer0.entity.healthcare.com": {
+        "url": "grpc://34.41.128.122:7101",
+        "tlsCACerts": {
+          "pem": "-----BEGIN CERTIFICATE-----\nMIICbjCCAhSgAwIBAgIRAPQqd3XTUKqjFpRy/0eT1tkwCgYIKoZIzj0EAwIwgYAx\nCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpDYWxpZm9ybmlhMRYwFAYDVQQHEw1TYW4g\nRnJhbmNpc2NvMR4wHAYDVQQKExVlbnRpdHkuaGVhbHRoY2FyZS5jb20xJDAiBgNV\nBAMTG3Rsc2NhLmVudGl0eS5oZWFsdGhjYXJlLmNvbTAeFw0yNDEwMDIxNTEwMDBa\nFw0zNDA5MzAxNTEwMDBaMIGAMQswCQYDVQQGEwJVUzETMBEGA1UECBMKQ2FsaWZv\ncm5pYTEWMBQGA1UEBxMNU2FuIEZyYW5jaXNjbzEeMBwGA1UEChMVZW50aXR5Lmhl\nYWx0aGNhcmUuY29tMSQwIgYDVQQDExt0bHNjYS5lbnRpdHkuaGVhbHRoY2FyZS5j\nb20wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAATRYjbVrhTuVacaczwJ2oZyKX9P\nnhCt7mt7SLbm0v7XHeKFtk2brukFurJdQOsWj7SVfER9f5AuxS09OadPD81Io20w\nazAOBgNVHQ8BAf8EBAMCAaYwHQYDVR0lBBYwFAYIKwYBBQUHAwIGCCsGAQUFBwMB\nMA8GA1UdEwEB/wQFMAMBAf8wKQYDVR0OBCIEIKPGLWd+3xSs8hK96VJwqFqLhL5M\nVqjpUupfs8eR5AhTMAoGCCqGSM49BAMCA0gAMEUCIDlRfAycKDpVcqOysKu5YEdN\n585ojV9sHrgNY4c8sKweAiEA5C/f9SLixcwDJ99LRbKAXBve5V/Qz97NV3z5kxRM\nZeY=\n-----END CERTIFICATE-----\n"
+        }
+      }
+    },
+  "certificateAuthorities": {
+      "ca.doctor.healthcare.com": {
+          "url": "http://35.184.169.4:7060",
+          "caName": "ca.doctor.healthcare.com",
+          "tlsCACerts": {
+              "pem": "-----BEGIN CERTIFICATE-----\nMIICbjCCAhSgAwIBAgIRAI2Y/MpYfIwb0iA6HMuN9PwwCgYIKoZIzj0EAwIwgYAx\nCzAJBgNVBAYTAlVTMRMwEQYDVQQIEwpDYWxpZm9ybmlhMRYwFAYDVQQHEw1TYW4g\nRnJhbmNpc2NvMR4wHAYDVQQKExVkb2N0b3IuaGVhbHRoY2FyZS5jb20xJDAiBgNV\nBAMTG3Rsc2NhLmRvY3Rvci5oZWFsdGhjYXJlLmNvbTAeFw0yNDEwMDIxNTEwMDBa\nFw0zNDA5MzAxNTEwMDBaMIGAMQswCQYDVQQGEwJVUzETMBEGA1UECBMKQ2FsaWZv\ncm5pYTEWMBQGA1UEBxMNU2FuIEZyYW5jaXNjbzEeMBwGA1UEChMVZG9jdG9yLmhl\nYWx0aGNhcmUuY29tMSQwIgYDVQQDExt0bHNjYS5kb2N0b3IuaGVhbHRoY2FyZS5j\nb20wWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAQr0JqWZqDMk1bsK9tKTGGjwaDR\nkddF5LO03B1z8LGNd1MFjbb9MlSloFDCuVkGQaEcFf3UakLwWvj3DnMX16+fo20w\nazAOBgNVHQ8BAf8EBAMCAaYwHQYDVR0lBBYwFAYIKwYBBQUHAwIGCCsGAQUFBwMB\nMA8GA1UdEwEB/wQFMAMBAf8wKQYDVR0OBCIEIM+ydNj1W8rye2KZ5FiNPyYN1Sm7\nZ93NcBLW++HVjDkNMAoGCCqGSM49BAMCA0gAMEUCIGsd7gQzYix/JQCoLKYrYB1N\nDAZrhzAOwIsjoIc7ITyZAiEA+vCWVo9vPcPO5xXfcihkjVo5n39U3KsdfiVRiUAl\naW8=\n-----END CERTIFICATE-----\n"
+          },
+          "httpOptions": {
+              "verify": false
+          }
+      }
+  }
+}
