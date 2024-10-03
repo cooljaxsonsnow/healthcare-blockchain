@@ -8,10 +8,8 @@ exports.isAuthenticatedUser = async function (req, res, next) {
     const token = req.header("token");
     console.log(token);
     console.log(process.env.JWT_SECRET);
-    console.log(req.session.uid);
 
     if (!token) {
-      req.session.destroy();
       return res.status(401).json({
         message: "Please Login To Access",
       });
@@ -32,6 +30,11 @@ exports.isAuthenticatedUser = async function (req, res, next) {
         orgName: true
       }
     });
+    if (!req.user) {
+      return res.status(401).json({
+        message: "Please Login To Access",
+      });
+    }
     console.log(req.user);
     next();
   } catch (err) {

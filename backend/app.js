@@ -11,11 +11,9 @@ const jwt = require('jsonwebtoken');
 const bearerToken = require('express-bearer-token');
 const cors = require('cors');
 const constants = require('./config/constants.json')
-const mongoose = require('mongoose');
 const host = process.env.HOST || constants.host;
 const port = process.env.PORT || constants.port;
 const session = require('express-session');
-const MongoDBSession = require("connect-mongodb-session")(session);
 const { isAuthenticatedUser, authorizeRoles } = require('./middleware/auth')
 
 const helper = require('./app/helper')
@@ -24,20 +22,6 @@ const qscc = require('./app/qscc')
 const query = require('./app/query')
 
 require('dotenv').config();
-
-
-
-mongoose.connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-});
-const connection = mongoose.connection.on('connected', () => {
-    console.log('connected to mongoose');
-})
-mongoose.connection.on('error', (err) => {
-    console.log("error while connecting", err)
-})
-
 
 
 // app.options('*', cors());
@@ -54,27 +38,6 @@ app.use(bodyParser.urlencoded({
 app.use(bearerToken());
 
 logger.level = 'debug';
-
-const store = new MongoDBSession({
-    uri: process.env.MONGO_URI,
-    collection: 'mySessions'
-})
-
-app.use(session({
-    secret: process.env.SESSION_SECRET_KEY,
-    resave: false,
-    saveUninitialized: false,
-    store: store,
-    cookie: {
-        //    sameSite: 'None',
-        //    httpOnly:true,
-        //    secure:true,
-
-    },
-    proxy: true
-}))
-
-
 
 var server = http.createServer(app).listen(port, function () { console.log(`Server started on ${port}`) });
 logger.info('****************** SERVER STARTED ************************');

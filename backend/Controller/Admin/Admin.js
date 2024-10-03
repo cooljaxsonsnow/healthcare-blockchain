@@ -86,8 +86,6 @@ exports.register = async (req, res, next) => {
     logger.debug('Successfully registered the email %s for organization %s', email, orgName);
     const password_hash = await bcrypt.hash(password, 10);
     const user = await prisma.user.create({ data: { firstName, lastName, orgName, password: password_hash, email, walletHash: hash } })
-    req.session.uid = user.id;
-    req.session.role = user.orgName;
 
     var token = jwt.sign({ id: user.id }, process.env.JWT_SECRET,);
 
@@ -146,11 +144,6 @@ exports.Login = async (req, res, next) => {
     });
 
   }
-
-  req.session.uid = user.id;
-  req.session.role = user.orgName;
-
-  console.log(req.session.uid, req.session.role)
 
   var token = jwt.sign({ id: user.id }, process.env.JWT_SECRET,);
 
